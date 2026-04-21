@@ -1,0 +1,47 @@
+
+
+================================================================================
+  BACKLOG - THEORY 3: ADJUSTED CDC TABLE AS EXPECTED BASIS
+================================================================================
+
+  Added: April 2026
+  Status: Pending
+  Prerequisite: Script 13 (cdc_vs_actual_comparison.py) - COMPLETE
+
+  Concept:
+    Replace the GAM baselines with an adjusted CDC mortality table
+    throughout the pipeline. The adjusted table = CDC qx * A/E factor
+    by age band (and optionally by gender and duration).
+
+  Findings from Script 13:
+    - Overall NHANES A/E vs CDC = 0.988 (very close to 1.0)
+    - Duration 1 A/E = 0.890 (healthy participant effect)
+    - Ages 30-39: A/E around 0.55 (dramatic healthy volunteer bias)
+    - Ages 50-65: A/E around 0.95 (close to population)
+    - Ages 80-84: A/E = 1.18 (above CDC, possibly top-coding effect)
+
+  Implementation options:
+    A) Single overall factor (0.988) applied to all CDC qx
+       - Simplest; barely changes anything
+    B) Age-band factors applied to CDC qx
+       - Captures the age-dependent selection bias
+       - Most impact on younger ages
+    C) Age-band x gender x duration factors
+       - Most granular; captures duration-1 selection effect
+       - Risk of overfitting with small cells
+
+  Impact on pipeline:
+    - Scripts 04 (GAM baselines) could be eliminated
+    - Script 06 would use adjusted CDC table for baseline lookups
+    - Script 09 relativities would be vs adjusted CDC, not raw CDC
+    - All relative mortality charts would update
+    - Mortality table builder (script 11) would use adjusted CDC
+      as the population table for grading
+
+  Decision needed:
+    Which level of granularity (A, B, or C) to use?
+    Recommendation: Option B (age-band factors) is the best balance
+    of accuracy and stability. It captures the main pattern without
+    the noise of small cells in option C.
+
+================================================================================
