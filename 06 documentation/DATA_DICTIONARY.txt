@@ -1,0 +1,240 @@
+================================================================================
+  NHANES 1999-2018 Combined Dataset with Linked Mortality
+  Data Dictionary
+================================================================================
+
+  Source:    CDC National Health and Nutrition Examination Survey (NHANES)
+  Cycles:   1999-2000 through 2017-2018 (10 two-year cycles)
+  Rows:     101,316 participants
+  Columns:  33
+  File:     nhanes_all_cycles_with_mortality.csv
+
+  Mortality linkage from the National Death Index (NDI), with
+  follow-up through December 31, 2019.
+
+
+================================================================================
+  IDENTIFIERS
+================================================================================
+
+  SEQN            Unique participant ID within each NHANES cycle.
+                  Use SEQN + CYCLE together to uniquely identify a person
+                  across the full combined dataset.
+
+  CYCLE           Survey cycle label (e.g. "1999-2000", "2017-2018").
+                  Added during data combination; not an original NHANES variable.
+
+
+================================================================================
+  DEMOGRAPHICS
+================================================================================
+
+  RIDAGEYR        Age in years at screening.
+                  Range: 0-85. Ages 85+ are top-coded to 85.
+
+  RIAGENDR        Gender.
+                  1 = Male
+                  2 = Female
+
+  RIDRETH1        Race/ethnicity (5 categories).
+                  1 = Mexican American
+                  2 = Other Hispanic
+                  3 = Non-Hispanic White
+                  4 = Non-Hispanic Black
+                  5 = Other Race / Multi-Racial
+
+  DMDEDUC2        Education level (adults 20+).
+                  1 = Less than 9th grade
+                  2 = 9-11th grade (no diploma)
+                  3 = High school graduate / GED
+                  4 = Some college or AA degree
+                  5 = College graduate or above
+                  7 = Refused
+                  9 = Don't know
+
+  INDFMPIR        Ratio of family income to poverty threshold.
+                  Range: 0-5. Values above 5 are top-coded to 5.
+                  Higher values indicate higher income relative to poverty.
+
+
+================================================================================
+  BODY MEASUREMENTS
+================================================================================
+
+  BMXBMI          Body Mass Index (kg/m^2).
+                  Calculated from measured weight and height.
+
+  BMXWT           Weight in kilograms.
+
+  BMXHT           Standing height in centimeters.
+
+  BMXWAIST        Waist circumference in centimeters.
+                  Measured at the iliac crest.
+
+
+================================================================================
+  BLOOD PRESSURE
+================================================================================
+
+  BPXSY1          Systolic blood pressure, 1st reading (mmHg).
+  BPXDI1          Diastolic blood pressure, 1st reading (mmHg).
+  BPXSY2          Systolic blood pressure, 2nd reading (mmHg).
+  BPXDI2          Diastolic blood pressure, 2nd reading (mmHg).
+
+                  Up to 4 readings were taken; only the first 2 are
+                  included here. Common practice is to average available
+                  readings for analysis.
+
+
+================================================================================
+  LABORATORY VALUES
+================================================================================
+
+  LBXTC           Total cholesterol (mg/dL).
+                  Measured from blood specimen at the MEC exam.
+
+  LBXGH           Glycohemoglobin / HbA1c (%).
+                  Reflects average blood glucose over prior 2-3 months.
+                  Values >= 6.5% are a diagnostic criterion for diabetes.
+
+
+================================================================================
+  SMOKING
+================================================================================
+
+  SMQ020          Smoked at least 100 cigarettes in life.
+                  1 = Yes
+                  2 = No
+                  7 = Refused
+                  9 = Don't know
+
+  SMQ040          Current smoking status (asked only if SMQ020 = 1).
+                  1 = Every day
+                  2 = Some days
+                  3 = Not at all (former smoker)
+
+
+================================================================================
+  ALCOHOL USE
+================================================================================
+
+  ALQ101          Had at least 12 alcoholic drinks in past year.
+                  1 = Yes
+                  2 = No
+
+  ALQ120Q         How often drank alcohol in past 12 months.
+                  Numeric count; units vary by cycle (days per week,
+                  month, or year depending on follow-up question).
+
+
+================================================================================
+  DIABETES
+================================================================================
+
+  DIQ010          Doctor told you that you have diabetes.
+                  1 = Yes
+                  2 = No
+                  3 = Borderline
+                  7 = Refused
+                  9 = Don't know
+
+
+================================================================================
+  MEDICAL CONDITIONS (self-reported, ever diagnosed)
+================================================================================
+
+  MCQ160B         Ever told you had congestive heart failure (CHF).
+                  1 = Yes
+                  2 = No
+
+  MCQ160C         Ever told you had coronary heart disease (CHD).
+                  1 = Yes
+                  2 = No
+
+  MCQ160F         Ever told you had a stroke.
+                  1 = Yes
+                  2 = No
+
+  MCQ220          Ever told you had cancer or a malignancy.
+                  1 = Yes
+                  2 = No
+
+
+================================================================================
+  MORTALITY OUTCOME (from CDC Linked Mortality File)
+================================================================================
+
+  ELIGSTAT        Mortality linkage eligibility.
+                  1 = Eligible (adult 18+ with sufficient ID data)
+                  2 = Under age 18, ineligible for public-use file
+                  3 = Ineligible, insufficient identifying data
+
+                  NOTE: Only participants with ELIGSTAT = 1 should be
+                  used for survival analysis. Filter on this first.
+
+  MORTSTAT        Vital status (for ELIGSTAT = 1 only).
+                  0 = Presumed alive (did not match NDI through 2019)
+                  1 = Presumed deceased (matched to NDI death record)
+
+  PERMTH_INT      Person-months of follow-up from NHANES interview date.
+                  For deceased (MORTSTAT=1): months from interview to death.
+                  For alive (MORTSTAT=0): months from interview to Dec 31, 2019.
+                  This is the TIME variable for survival models.
+
+  PERMTH_EXM      Person-months of follow-up from MEC examination date.
+                  Same concept as PERMTH_INT but clock starts at the
+                  physical exam rather than the household interview.
+
+  UCOD_LEADING    Underlying cause of death (leading cause categories).
+                  Only populated for deceased participants (MORTSTAT = 1).
+                   1 = Diseases of the heart
+                   2 = Malignant neoplasms (cancer)
+                   3 = Chronic lower respiratory diseases
+                   4 = Accidents (unintentional injuries)
+                   5 = Cerebrovascular diseases (stroke)
+                   6 = Alzheimer's disease
+                   7 = Diabetes mellitus
+                   8 = Influenza and pneumonia
+                   9 = Nephritis / nephrotic syndrome / nephrosis
+                  10 = All other causes
+
+  DIABETES_MORT   Diabetes listed as a cause of death.
+                  0 = No
+                  1 = Yes
+
+  HYPERTEN_MORT   Hypertension listed as a cause of death.
+                  0 = No
+                  1 = Yes
+
+
+================================================================================
+  NOTES FOR ANALYSIS
+================================================================================
+
+  Missing values     Blank/NaN values occur when a participant was not
+                     eligible for a question (e.g. age-restricted items),
+                     declined to answer, or did not complete the exam.
+
+  Survival analysis  Filter to ELIGSTAT == 1 first. Use MORTSTAT as the
+                     event indicator and PERMTH_INT as the time variable.
+
+  Combining cycles   Earlier cycles (e.g. 1999-2000) have longer follow-up
+                     but the same censoring date. The CYCLE column lets
+                     you filter or stratify by survey wave.
+
+  Survey weights     This file does not include NHANES sample weights.
+                     Unweighted analyses are valid for prediction modeling.
+                     For nationally representative prevalence estimates,
+                     download the appropriate weight variables from the
+                     DEMO files on the CDC website.
+
+  Perturbation       The public-use mortality file has had some follow-up
+                     times and cause-of-death codes replaced with synthetic
+                     values to protect participant privacy. Vital status
+                     (MORTSTAT) was NOT perturbed.
+
+  Citation           National Center for Health Statistics. Continuous
+                     NHANES Public-use Linked Mortality Files, 2019.
+                     Hyattsville, Maryland. Available from:
+                     https://www.cdc.gov/nchs/data-linkage/mortality-public.htm
+

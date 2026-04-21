@@ -1,0 +1,16 @@
+# ── Generated data (reproduced by pipeline) ──
+01 raw data/
+02 processed data/
+04 models/
+05 artifacts/
+
+# ── Backups (local only) ──
+00 Backup/
+
+# ── Python ──
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+*.egg
