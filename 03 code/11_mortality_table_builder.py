@@ -129,7 +129,7 @@ def build_mortality_table(age, sex, annual_qx, rel_yr5, decay_rate,
 if __name__ == "__main__":
     PROJECT_DIR = r"C:\Users\nieme\OneDrive\Desktop\PA\Mortality Presentation"
     CDC_PATH = os.path.join(PROJECT_DIR, "02 processed data",
-                            "adjusted_cdc_life_table.csv")
+                            "cdc_life_table.csv")
     GRADING_PATH = os.path.join(PROJECT_DIR, "02 processed data",
                                 "grading_parameters.csv")
     ARTIFACT_DIR = os.path.join(PROJECT_DIR, "05 artifacts")

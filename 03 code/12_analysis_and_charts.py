@@ -41,7 +41,7 @@ COMPOSED_PATH = os.path.join(PROJECT_DIR, "02 processed data",
 GRADING_PATH = os.path.join(PROJECT_DIR, "02 processed data",
                             "grading_parameters.csv")
 CDC_PATH     = os.path.join(PROJECT_DIR, "02 processed data",
-                            "adjusted_cdc_life_table.csv")
+                            "cdc_life_table.csv")
 BASELINE_PATH = os.path.join(PROJECT_DIR, "02 processed data",
                              "baseline_annual_gam.csv")
 FEATURES_PATH = os.path.join(PROJECT_DIR, "02 processed data",

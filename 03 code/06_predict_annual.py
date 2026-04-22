@@ -2,11 +2,11 @@
 06_predict_annual.py
 =====================
 Loads the 5 annual XGBoost models and scores all individuals.
-Merges GAM baseline rates for each year, adjusting age by
-duration (age + k - 1).
+Merges CDC population baseline rates for each year, adjusting
+age by duration (attained age = exam_age + k - 1).
 
 Input:  02 processed data - nhanes_modeling_ready.csv
-        02 processed data - baseline_annual_gam.csv
+        02 processed data - cdc_life_table.csv
         04 models - annual_yr1.json .. annual_yr5.json
 Output: 02 processed data - nhanes_predictions_annual.csv
 """
@@ -20,8 +20,8 @@ warnings.filterwarnings("ignore")
 PROJECT_DIR  = r"C:\Users\nieme\OneDrive\Desktop\PA\Mortality Presentation"
 INPUT_PATH   = os.path.join(PROJECT_DIR, "02 processed data",
                             "nhanes_modeling_ready.csv")
-BASELINE_PATH = os.path.join(PROJECT_DIR, "02 processed data",
-                             "adjusted_cdc_life_table.csv")
+CDC_PATH      = os.path.join(PROJECT_DIR, "02 processed data",
+                             "cdc_life_table.csv")
 MODEL_DIR    = os.path.join(PROJECT_DIR, "04 models")
 OUTPUT_PATH  = os.path.join(PROJECT_DIR, "02 processed data",
                             "nhanes_predictions_annual.csv")
@@ -44,18 +44,18 @@ print("  06 - Score All Individuals (Annual Models)")
 print("=" * 65)
 
 df = pd.read_csv(INPUT_PATH)
-baseline = pd.read_csv(BASELINE_PATH)
+cdc = pd.read_csv(CDC_PATH)
 print(f"\n  Loaded: {len(df):,} rows")
-print(f"  Adjusted CDC table: {len(baseline)} rows")
+print(f"  CDC life table: {len(cdc)} rows")
 
-# Gender label for baseline merge
+# Gender label for merge
 df["gender"] = df["IS_MALE"].map({1: "Male", 0: "Female"})
 df["exam_age"] = df["RIDAGEYR"].astype(int)
 
-# Build adjusted CDC lookup: (age, sex) -> qx_adjusted
-adj_lookup = {}
-for _, row in baseline.iterrows():
-    adj_lookup[(int(row["age"]), row["sex"])] = row["qx_adjusted"]
+# Build CDC lookup: (age, sex) -> qx
+cdc_lookup = {}
+for _, row in cdc.iterrows():
+    cdc_lookup[(int(row["age"]), row["sex"])] = row["qx"]
 
 # =====================================================================
 # STEP 2: Score each year and merge baselines
@@ -72,11 +72,11 @@ for yr in range(1, 6):
     X = df[FEATURE_COLS]
     df[f"q{yr}_xgb"] = model.predict_proba(X)[:, 1]
 
-    # Look up adjusted CDC baseline for this year
+    # Look up CDC population baseline for this year
     # Attained age for year k = exam_age + k - 1
     attained_age = (df["exam_age"] + yr - 1).clip(upper=100)
     df[f"q{yr}_gam"] = [
-        adj_lookup.get((a, s), np.nan)
+        cdc_lookup.get((a, s), np.nan)
         for a, s in zip(attained_age, df["gender"])
     ]
 

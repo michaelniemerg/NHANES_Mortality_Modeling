@@ -53,10 +53,6 @@ STEPS = [
      os.path.join(PROJECT_DIR, "02 processed data",
                   "cdc_life_table.csv")),
 
-    ("14_create_adjusted_cdc_table.py",
-     "Create adjusted CDC table matching NHANES experience",
-     None),
-
     ("06_predict_annual.py",
      "Score all individuals with annual models",
      None),
