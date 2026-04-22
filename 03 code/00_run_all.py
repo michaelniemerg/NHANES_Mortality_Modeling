@@ -48,6 +48,15 @@ STEPS = [
      "Train 5 annual XGBoost models",
      None),
 
+    ("08_download_cdc_life_table.py",
+     "Download CDC 2021 period life table",
+     os.path.join(PROJECT_DIR, "02 processed data",
+                  "cdc_life_table.csv")),
+
+    ("14_create_adjusted_cdc_table.py",
+     "Create adjusted CDC table matching NHANES experience",
+     None),
+
     ("06_predict_annual.py",
      "Score all individuals with annual models",
      None),
@@ -55,11 +64,6 @@ STEPS = [
     ("07_compose_multiyear_survival.py",
      "Compose annual qx into multi-year survival",
      None),
-
-    ("08_download_cdc_life_table.py",
-     "Download CDC 2021 period life table",
-     os.path.join(PROJECT_DIR, "02 processed data",
-                  "cdc_life_table.csv")),
 
     ("09_fit_relativity_splines.py",
      "Compute relativities and analyze convergence",
@@ -75,6 +79,10 @@ STEPS = [
 
     ("12_analysis_and_charts.py",
      "Final analysis, charts, and summary tables",
+     None),
+
+    ("13_cdc_vs_actual_comparison.py",
+     "CDC vs actual deaths comparison and A/E factors",
      None),
 ]
 

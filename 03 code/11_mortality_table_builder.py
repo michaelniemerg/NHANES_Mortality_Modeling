@@ -23,7 +23,7 @@ import numpy as np
 import os
 
 def build_mortality_table(age, sex, annual_qx, rel_yr5, decay_rate,
-                          cdc_life_table, max_age=100):
+                          cdc_life_table, max_age=100, qx_col=None):
     """
     Build a complete individual mortality table.
 
@@ -40,19 +40,26 @@ def build_mortality_table(age, sex, annual_qx, rel_yr5, decay_rate,
     decay_rate : float
         Annual exponential decay rate for grading (e.g., 0.90).
     cdc_life_table : DataFrame
-        CDC life table with columns: age, sex, qx.
+        Life table with columns: age, sex, and a qx column.
     max_age : int
         Project through this age (default 100).
+    qx_col : str or None
+        Column name for qx values. Auto-detects: uses 'qx_adjusted'
+        if present, otherwise falls back to 'qx'.
 
     Returns
     -------
     DataFrame with columns:
         duration, attained_age, qx_pop, relativity, qx_adj, px, lx, dx, ex
     """
-    # Build CDC lookup
+    # Auto-detect qx column
+    if qx_col is None:
+        qx_col = "qx_adjusted" if "qx_adjusted" in cdc_life_table.columns else "qx"
+
+    # Build lookup
     cdc_lookup = {}
     for _, row in cdc_life_table.iterrows():
-        cdc_lookup[(int(row["age"]), row["sex"])] = row["qx"]
+        cdc_lookup[(int(row["age"]), row["sex"])] = row[qx_col]
 
     rows = []
     max_duration = max_age - age + 1
@@ -122,7 +129,7 @@ def build_mortality_table(age, sex, annual_qx, rel_yr5, decay_rate,
 if __name__ == "__main__":
     PROJECT_DIR = r"C:\Users\nieme\OneDrive\Desktop\PA\Mortality Presentation"
     CDC_PATH = os.path.join(PROJECT_DIR, "02 processed data",
-                            "cdc_life_table.csv")
+                            "adjusted_cdc_life_table.csv")
     GRADING_PATH = os.path.join(PROJECT_DIR, "02 processed data",
                                 "grading_parameters.csv")
     ARTIFACT_DIR = os.path.join(PROJECT_DIR, "05 artifacts")

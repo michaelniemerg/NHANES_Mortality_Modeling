@@ -31,7 +31,7 @@ PROJECT_DIR  = r"C:\Users\nieme\OneDrive\Desktop\PA\Mortality Presentation"
 PRED_PATH    = os.path.join(PROJECT_DIR, "02 processed data",
                             "nhanes_predictions_annual.csv")
 CDC_PATH     = os.path.join(PROJECT_DIR, "02 processed data",
-                            "cdc_life_table.csv")
+                            "adjusted_cdc_life_table.csv")
 ARTIFACT_DIR = os.path.join(PROJECT_DIR, "05 artifacts")
 
 sns.set_theme(style="whitegrid", font_scale=1.1)
@@ -65,7 +65,7 @@ df["sex"] = df["IS_MALE"].map({1: "Male", 0: "Female"})
 # Build a lookup dict from CDC table: (age, sex) -> qx
 cdc_lookup = {}
 for _, row in cdc.iterrows():
-    cdc_lookup[(int(row["age"]), row["sex"])] = row["qx"]
+    cdc_lookup[(int(row["age"]), row["sex"])] = row["qx_adjusted"]
 
 for yr in range(1, 6):
     attained = (df["exam_age"] + yr - 1).clip(upper=100)

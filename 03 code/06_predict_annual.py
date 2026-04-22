@@ -21,7 +21,7 @@ PROJECT_DIR  = r"C:\Users\nieme\OneDrive\Desktop\PA\Mortality Presentation"
 INPUT_PATH   = os.path.join(PROJECT_DIR, "02 processed data",
                             "nhanes_modeling_ready.csv")
 BASELINE_PATH = os.path.join(PROJECT_DIR, "02 processed data",
-                             "baseline_annual_gam.csv")
+                             "adjusted_cdc_life_table.csv")
 MODEL_DIR    = os.path.join(PROJECT_DIR, "04 models")
 OUTPUT_PATH  = os.path.join(PROJECT_DIR, "02 processed data",
                             "nhanes_predictions_annual.csv")
@@ -46,11 +46,16 @@ print("=" * 65)
 df = pd.read_csv(INPUT_PATH)
 baseline = pd.read_csv(BASELINE_PATH)
 print(f"\n  Loaded: {len(df):,} rows")
-print(f"  Baseline table: {len(baseline)} rows")
+print(f"  Adjusted CDC table: {len(baseline)} rows")
 
 # Gender label for baseline merge
 df["gender"] = df["IS_MALE"].map({1: "Male", 0: "Female"})
 df["exam_age"] = df["RIDAGEYR"].astype(int)
+
+# Build adjusted CDC lookup: (age, sex) -> qx_adjusted
+adj_lookup = {}
+for _, row in baseline.iterrows():
+    adj_lookup[(int(row["age"]), row["sex"])] = row["qx_adjusted"]
 
 # =====================================================================
 # STEP 2: Score each year and merge baselines
@@ -63,22 +68,17 @@ for yr in range(1, 6):
     model = xgb.XGBClassifier()
     model.load_model(model_path)
 
-    # Score ALL individuals (not just at-risk) so we have predictions
-    # available for the composition step. Predictions for people not
-    # at risk for year k are hypothetical ("if they survived to year k").
+    # Score ALL individuals
     X = df[FEATURE_COLS]
     df[f"q{yr}_xgb"] = model.predict_proba(X)[:, 1]
 
-    # Merge GAM baseline for this year
+    # Look up adjusted CDC baseline for this year
     # Attained age for year k = exam_age + k - 1
-    attained_age = (df["exam_age"] + yr - 1).clip(upper=85)
-    df["_merge_age"] = attained_age
-
-    yr_baseline = baseline[baseline["year"] == yr][["age", "gender", "gam_qx"]]
-    yr_baseline = yr_baseline.rename(columns={"age": "_merge_age",
-                                               "gam_qx": f"q{yr}_gam"})
-
-    df = df.merge(yr_baseline, on=["_merge_age", "gender"], how="left")
+    attained_age = (df["exam_age"] + yr - 1).clip(upper=100)
+    df[f"q{yr}_gam"] = [
+        adj_lookup.get((a, s), np.nan)
+        for a, s in zip(attained_age, df["gender"])
+    ]
 
     # Calibration check on test set (at-risk only)
     test_risk = df[(df["SPLIT"] == "TEST") & (df[f"AT_RISK_YR{yr}"] == 1)]
@@ -87,8 +87,6 @@ for yr in range(1, 6):
     ratio = sum_pred / sum_actual if sum_actual > 0 else 0
     print(f"  Year {yr}: scored {len(df):,}  |  "
           f"test calibration: {sum_pred:.1f}/{sum_actual:.0f} = {ratio:.3f}")
-
-df = df.drop(columns=["_merge_age"])
 
 # =====================================================================
 # STEP 3: Select output columns and save
