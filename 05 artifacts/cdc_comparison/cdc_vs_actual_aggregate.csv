@@ -1,0 +1,4 @@
+sex,n_at_risk,actual_deaths,cdc_expected,AoverE
+Female,128530,1331.0,1383.2,0.9623
+Male,118705,1902.0,1888.4,1.0072
+Total,247235,3233.0,3271.6,0.9882
